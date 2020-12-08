@@ -1,6 +1,12 @@
 import { executeQuery } from "../database/database.js";
 import { bcrypt } from "../deps.js";
 
+function getNumberOfWeek() {
+  const today = new Date();
+  const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+  const pastDaysOfYear = (today - firstDayOfYear) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
 
 const wellBoingAuth = async({request, response}) => {
   const body = request.body();
@@ -202,7 +208,15 @@ const monthlySummary = async(desiredMonth) => {
 
 
 
-const weeklySummary = async() => {
+const weeklySummary = async(desiredWeek) => {
+  let week = desiredWeek;
+  if (!week) {
+    const today = new Date();
+    const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
+    const pastDaysOfYear = (today - firstDayOfYear) / 86400000;
+    week = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7); // inspired from TArch64 from GitHub
+  };
+
   const weeklySum = {
     avgWeeSleep:'',
     avgWeeSleepQuality:'',
@@ -211,6 +225,16 @@ const weeklySummary = async() => {
     avgWeeMood:'',
   }
 
+  const userId = 2 // FROM SESSION, FIX!!!!
+  weeklySum.avgWeeSleep = Number((await executeQuery("SELECT ROUND(AVG(sleep_duration)) FROM morning_data WHERE user_id = $1 AND sleep_duration IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
+
+  weeklySum.avgWeeSleepQuality = Number((await executeQuery("SELECT ROUND(AVG(sleep_quality)) FROM morning_data WHERE user_id = $1 AND sleep_quality IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
+
+  weeklySum.avgWeeSport = Number((await executeQuery("SELECT ROUND(AVG(sport_time)) FROM evening_data WHERE user_id = $1 AND sport_time IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
+
+  weeklySum.avgWeeStudy = Number((await executeQuery("SELECT ROUND(AVG(study_time)) FROM evening_data WHERE user_id = $1 AND study_time IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
+
+  weeklySum.avgWeeMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date_part('week', date) = $2 UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date_part('week', date) = $2) AS summed_moods", userId, week)).rowsOfObjects()[0].round);
   
   return weeklySum;
 };

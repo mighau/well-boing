@@ -32,9 +32,9 @@ const eveningReport = async({render}) => {
 
 const summary = async({render}) => {
   const data = {
-    summary: await services.monthlySummary()
+    monthly: await services.monthlySummary(),
+    weekly: await services.weeklySummary()
   };
-  console.log(data);
   render('summaryMain.ejs', data);
 };
 
