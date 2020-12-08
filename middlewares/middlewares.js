@@ -28,4 +28,12 @@ const serveStaticFilesMiddleware = async(context, next) => {
   }
 }
 
-export { errorMiddleware, requestTimingMiddleware, serveStaticFilesMiddleware };
+const authMiddleware = async({request, response, session}, next) => {
+  if (request.url.pathname !== '/auth/login' && !(await session.get('authenticated'))) {
+    response.redirect('/auth/login');
+  } else {
+    await next();
+  }
+};
+
+export { authMiddleware, errorMiddleware, requestTimingMiddleware, serveStaticFilesMiddleware };

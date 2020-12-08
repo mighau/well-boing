@@ -1,0 +1,32 @@
+<%- include('./partials/header.ejs') %>
+<div class = "container">
+    <h1>Your summary</h1>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Average sleep duration:</th>
+            <th scope="col">Average quality of sleep:</th>
+            <th scope="col">Average time spent on exercise/sports:</th>
+            <th scope="col">Average time spent on studying:</th>
+            <th scope="col">Average general mood:</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- <tr>
+            <td>sleeph</td>
+            <td>sleepq</td>
+            <td>sports</td>
+            <td>study</td>
+            <td>smood</td>
+          </tr> -->
+          <tr>
+            <td><%= summary.avgMonSleep %> hours</td>
+            <td><%= summary.avgMonSleepQuality %> / 5</td>
+            <td><%= summary.avgMonSport %> hours</td>
+            <td><%= summary.avgMonStudy %> hours</td>
+            <td><%= summary.avgMonMood %> / 5</td>
+          </tr>
+        </tbody>
+      </table>
+</div>
+<%- include('./partials/footer.ejs') %>

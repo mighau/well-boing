@@ -1,0 +1,60 @@
+<%- include('./partials/header.ejs') %>
+<script src="/static/eveEdits.js" defer></script>
+<div class="container">
+    <h1>Report evening activity</h1>
+    <% if (errors && errors.length > 0) { %>
+        <% errors.forEach((error) => { %>
+          <div class="alert alert-danger" role="alert">
+            <%= error %>
+          </div>
+        <% }); %>
+    <% } %>
+    <form method="POST" action="/report/evening">
+        <div class="form-group">
+            <fieldset>    
+                <label for="eveDate">1) Date of reporting (today as a default): </label>
+                <input class="form-control" type="date" id="eveDate" name="eveningDate" value="<%= eveningDate %>"/><br>
+
+                <label for="sportHours">2) How many hours did you spent excercising/sports? </label>
+                <input class="form-control" type="number" step="any" id="sportHours" name="sportHours" min="0" value="<%= sportHours %>" /><br>
+                
+                <label for="studyHours">3) How many hours did you spent studying? </label>
+                <input class="form-control" type="number" step="any" id="studyHours" name="studyHours" min="0" value="<%= studyHours %>"/><br>
+
+                <label for="inputGroupSelect01">4) On a scale from 1 to 5, how would you describe the regularity of your eating on the date of reporting?</label><br>
+                <select class="custom-select" id="inputGroupSelect01" name="eatingRegularity">
+                    <option selected>Choose...</option>
+                    <option value="1">1 (bad)</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5 (good)</option>
+                  </select>
+                <br><br>
+                <label for="inputGroupSelect01">5) On a scale from 1 to 5, how would you describe the quality of the food you ate on the date of reporting?</label><br>
+                <select class="custom-select" id="inputGroupSelect01" name="eatingQuality">
+                    <option selected>Choose...</option>
+                    <option value="1">1 (bad)</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5 (good)</option>
+                  </select>
+                  <br><br>
+                <label for="inputGroupSelect01">6) On a scale from 1 to 5, how are you feeling in general?</label><br>
+                <select class="custom-select" id="inputGroupSelect01" name="eveningMood">
+                    <option selected>Choose...</option>
+                    <option value="1">1 (bad)</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5 (good)</option>
+                  </select>
+                <p></p>
+                <input type="submit" value="Submit!" class="btn btn-primary" />
+            </fieldset>
+        </div>
+    </form>
+    <input type="button" value="Back" class="btn btn-secondary" onclick="toMain()"> 
+</div>
+<%- include('./partials/footer.ejs') %>
