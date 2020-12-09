@@ -1,7 +1,10 @@
 <%- include('./partials/header.ejs') %>
 <div class = "container">
-    <h1>Your summary</h1>
-    <h2>Monthly:</h2>
+    <h1>Your WellBoing</h1><br>
+    <h2>Mood today: <%=moods.todayMood%> <%=moods.moodTrend%></h2>
+    <p>(mood yesterday: <%=moods.yesterdayMood%>)</p>
+    <br>
+    <h2>Monthly averages:</h2>
     <table class="table">
         <thead>
           <tr>
@@ -21,8 +24,8 @@
             <td><%= monthly.avgMonMood %> / 5</td>
           </tr>
         </tbody>
-      </table>
-    <h2>Weekly:</h2>
+      </table><br>
+    <h2>Weekly averages:</h2>
     <table class="table">
         <thead>
           <tr>

@@ -168,7 +168,7 @@ const reportEveningData = async({response, request, render, session}) => {
   
 
   const userId = 2/* (await session.get('user')).id */;
-  if (data.errors.lenth === 0){
+  if (data.errors.length === 0){
     await executeQuery("INSERT INTO evening_data (sport_time, study_time, eating_regularity, eating_quality, generic_mood, date, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7);", sportHours, studyHours, eatingRegularity, eatingQuality, eveningMood, eveningDate, userId);
     response.redirect('/');
   } else {
@@ -239,6 +239,26 @@ const weeklySummary = async(desiredWeek) => {
   return weeklySum;
 };
 
+const moodPerDay = async() => {
+  const userId = 2 // FROM SESSION, FIX!!!!
 
 
-export { wellBoingAuth, wellBoingRegister, showLoginForm, reportMorningData, reportEveningData, monthlySummary, weeklySummary };
+  let todayMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE) AS summed_moods", userId)).rowsOfObjects()[0].round);
+  let yesterdayMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE - 1 UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE - 1) AS summed_moods", userId)).rowsOfObjects()[0].round);
+  let moodTrend = '(no changes)';
+
+  if (todayMood < yesterdayMood) {
+    moodTrend = "Going down, today's a new day though!";
+  } else if (todayMood > yesterdayMood) {
+    moodTrend = 'Going up, excellent!';
+  };
+  
+  if (!todayMood) todayMood = '[no data]';
+  if (!yesterdayMood) yesterdayMood = '[no data]';
+
+  return { todayMood: todayMood, yesterdayMood: yesterdayMood, moodTrend: moodTrend };
+}
+
+
+
+export { wellBoingAuth, wellBoingRegister, showLoginForm, reportMorningData, reportEveningData, monthlySummary, weeklySummary, moodPerDay };
