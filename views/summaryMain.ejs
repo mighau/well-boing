@@ -1,31 +1,42 @@
 <%- include('./partials/header.ejs') %>
+<script src="/static/summaryEdits.js" defer></script>
+
 <div class = "container">
+  <br>
     <h1>Your WellBoing</h1><br>
+    <br>
+    <br>
     <h2>Mood today: <%=moods.todayMood%> <%=moods.moodTrend%></h2>
     <p>(mood yesterday: <%=moods.yesterdayMood%>)</p>
     <br>
     <h2>Monthly averages:</h2>
+    <br>
+    Select month: <input type="month" id="month" name="month"> <input type="button" value="refresh" class="btn btn-info" onclick="refreshData()"><br>
+    <br>
     <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Average sleep duration:</th>
-            <th scope="col">Average quality of sleep:</th>
-            <th scope="col">Average time spent on exercise/sports:</th>
-            <th scope="col">Average time spent on studying:</th>
-            <th scope="col">Average general mood:</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><%= monthly.avgMonSleep %> hours</td>
-            <td><%= monthly.avgMonSleepQuality %> / 5</td>
-            <td><%= monthly.avgMonSport %> hours</td>
-            <td><%= monthly.avgMonStudy %> hours</td>
-            <td><%= monthly.avgMonMood %> / 5</td>
-          </tr>
-        </tbody>
-      </table><br>
+      <thead>
+        <tr>
+          <th scope="col">Average sleep duration:</th>
+          <th scope="col">Average quality of sleep:</th>
+          <th scope="col">Average time spent on exercise/sports:</th>
+          <th scope="col">Average time spent on studying:</th>
+          <th scope="col">Average general mood:</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="monSleep"><%= monthly.avgMonSleep %> hours</td>
+          <td id="monSleepQ"><%= monthly.avgMonSleepQuality %> / 5</td>
+          <td id="monSport"><%= monthly.avgMonSport %> hours</td>
+          <td id="monStudy"><%= monthly.avgMonStudy %> hours</td>
+          <td id="monMood"><%= monthly.avgMonMood %> / 5</td>
+        </tr>
+      </tbody>
+    </table><br>
     <h2>Weekly averages:</h2>
+    <br>
+    Select month: <input type="week" id="week" name="month"> <input type="button" value="refresh" class="btn btn-info" onclick="refreshData()"><br>
+    <br>
     <table class="table">
         <thead>
           <tr>
@@ -38,11 +49,11 @@
         </thead>
         <tbody>
           <tr>
-            <td><%= weekly.avgWeeSleep %> hours</td>
-            <td><%= weekly.avgWeeSleepQuality %> / 5</td>
-            <td><%= weekly.avgWeeSport %> hours</td>
-            <td><%= weekly.avgWeeStudy %> hours</td>
-            <td><%= weekly.avgWeeMood %> / 5</td>
+            <td id="weekSleep"><%= weekly.avgWeeSleep %> hours</td>
+            <td id="weekSleepQ"><%= weekly.avgWeeSleepQuality %> / 5</td>
+            <td id="weekSport"><%= weekly.avgWeeSport %> hours</td>
+            <td id="weekStudy"><%= weekly.avgWeeStudy %> hours</td>
+            <td id="weekMood"><%= weekly.avgWeeMood %> / 5</td>
           </tr>
         </tbody>
       </table>

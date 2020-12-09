@@ -6,7 +6,7 @@ function getNumberOfWeek() {
   const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
   const pastDaysOfYear = (today - firstDayOfYear) / 86400000;
   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
+};
 
 const wellBoingAuth = async({request, response}) => {
   const body = request.body();
@@ -205,9 +205,6 @@ const monthlySummary = async(desiredMonth) => {
   return monthlySum;
 };
 
-
-
-
 const weeklySummary = async(desiredWeek) => {
   let week = desiredWeek;
   if (!week) {
@@ -257,8 +254,20 @@ const moodPerDay = async() => {
   if (!yesterdayMood) yesterdayMood = '[no data]';
 
   return { todayMood: todayMood, yesterdayMood: yesterdayMood, moodTrend: moodTrend };
+};
+
+const dataRefresh = async({request, response}) => {
+  const body = request.body({type: 'json'});
+  const document = await body.value;
+
+  console.log(document);
+
+  const month = Number(document.month);
+  const week = Number(document.week);
+
+  response.status = 200;
+  response.body = {month: await monthlySummary(month), week: await weeklySummary(week) };
 }
 
 
-
-export { wellBoingAuth, wellBoingRegister, showLoginForm, reportMorningData, reportEveningData, monthlySummary, weeklySummary, moodPerDay };
+export { dataRefresh, wellBoingAuth, wellBoingRegister, showLoginForm, reportMorningData, reportEveningData, monthlySummary, weeklySummary, moodPerDay };

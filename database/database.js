@@ -2,7 +2,7 @@ import { Pool } from "../deps.js";
 import { config } from "../config/config.js";
 
 const CONCURRENT_CONNECTIONS = 4;
-const connectionPool = new Pool({
+const connectionPool = new Pool({             // environmental variables used here, FIX
   hostname: "hattie.db.elephantsql.com",
   database: "mgphxmam",
   user: "mgphxmam",

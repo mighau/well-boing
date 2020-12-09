@@ -3,6 +3,9 @@ import * as services from '../../services/wellBoingServices.js';
 const wellBoingLogin = async({render}) => {
   render('login.ejs');
 }
+const wellBoingRegister = async({render}) => {
+  render('register.ejs');
+}
 
 const wellBoingMain = async({render}) => {
   render('index.ejs');
@@ -40,6 +43,8 @@ const summary = async({render}) => {
   render('summaryMain.ejs', data);
 };
 
-export { wellBoingLogin, wellBoingMain, morningReport, eveningReport, summary };
+
+
+export { wellBoingRegister, wellBoingLogin, wellBoingMain, morningReport, eveningReport, summary };
 
 
