@@ -1,13 +1,27 @@
 import * as services from '../../services/wellBoingServices.js';
 
+
+
 const wellBoingLogin = async({render}) => {
-  render('login.ejs');
+  const data = {
+    errors: [],
+    email:''
+  };
+  render('login.ejs', data);
 }
 const wellBoingRegister = async({render}) => {
-  render('register.ejs');
+  const data = {
+    errors: [],
+    email:''
+  };
+
+  render('register.ejs', data);
 }
 
-const wellBoingMain = async({render}) => {
+const wellBoingMain = async({render, response, session}) => {
+  if (session && await session.get('authenticated')) {
+    response.redirect('/behavior/summary');
+}
   render('index.ejs');
 }
 

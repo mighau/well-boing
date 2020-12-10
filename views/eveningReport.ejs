@@ -1,4 +1,4 @@
-<%- include('./partials/header.ejs') %>
+<%- include('./partials/userHeader.ejs') %>
 <script src="/static/eveEdits.js" defer></script>
 <div class="container">
     <h1>Report evening activity</h1>
@@ -55,6 +55,6 @@
             </fieldset>
         </div>
     </form>
-    <input type="button" value="Back" class="btn btn-secondary" onclick="toMain()"> 
-</div>
+    <a href="/behavior/summary" class="btn btn-secondary my-2">Back</a>
+  </div>
 <%- include('./partials/footer.ejs') %>

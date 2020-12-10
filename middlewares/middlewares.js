@@ -29,7 +29,7 @@ const serveStaticFilesMiddleware = async(context, next) => {
 }
 
 const authMiddleware = async({request, response, session}, next) => {
-  if (request.url.pathname !== '/auth/login' && !(await session.get('authenticated'))) {
+  if (request.url.pathname !== '/auth/login' && request.url.pathname !== '/auth/register' && request.url.pathname !== '/' && !request.url.pathname.includes('/api') && !(await session.get('authenticated'))) {
     response.redirect('/auth/login');
   } else {
     await next();

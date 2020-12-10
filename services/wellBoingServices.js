@@ -1,78 +1,8 @@
 import { executeQuery } from "../database/database.js";
-import { bcrypt } from "../deps.js";
+import {getUserID} from "./wellBoinAuthServices.js";
 
-function getNumberOfWeek() {
-  const today = new Date();
-  const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
-  const pastDaysOfYear = (today - firstDayOfYear) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-};
 
-const wellBoingAuth = async({request, response}) => {
-  const body = request.body();
-  const params = await body.value;
-
-  const email = params.get('email');
-  const password = params.get('password');
-
-  // check if the email exists in the database
-  const res = await executeQuery("SELECT * FROM users WHERE email = $1;", email);
-  if (res.rowCount === 0) {
-      response.status = 401;
-      return;
-  }
-
-  // take the first row from the results
-  const userObj = res.rowsOfObjects()[0];
-
-  const hash = userObj.password;
-
-  const passwordCorrect = await bcrypt.compare(password, hash);
-  if (!passwordCorrect) {
-      respnse.status = 401;
-      return;
-  }
-
-  response.redirect("/");
-};
-
-const wellBoingRegister = async({request, response, session}) => {
-  const body = request.body();
-  const params = await body.value;
-  
-  const email = params.get('email');
-  const password = params.get('password');
-  const verification = params.get('verification');
-
-  // here, we would validate the data, e.g. checking that the 
-  // email really is an email
-
-  if (password !== verification) {
-    response.body = 'The entered passwords did not match';
-    return;
-  }
-
-  // check if there already exists such an email in the database
-  // -- if yes, respond with a message telling that the user
-  // already exists
-  const existingUsers = await executeQuery("SELECT * FROM users WHERE email = $1", email);
-  if (existingUsers.rowCount > 0) {
-    response.body = 'The email is already reserved.';
-    return;
-  }
-
-  // otherwise, store the details in the database
-  const hash = await bcrypt.hash(password);
-  // when storing a password, store the hash    
-  await executeQuery("INSERT INTO users (email, password) VALUES ($1, $2);", email, hash);
-  response.body = 'Registration successful!';
-};
-
-const showLoginForm = ({render}) => {
-  render('login.ejs');
-};
-
-const reportMorningData = async({response, request, render, session}) => {
+const reportMorningData = async({response, request, render}) => {
   const data = {
     errors:[],
     morningDate:'',
@@ -108,7 +38,7 @@ const reportMorningData = async({response, request, render, session}) => {
   data.sleepQuality = sleepQuality;
   data.morningMood = morningMood;
 
-  const userId = 2/* (await session.get('user')).id */;
+  const userId = await getUserID();
   if (data.errors.length === 0) {
     await executeQuery("INSERT INTO morning_data (sleep_duration, sleep_quality, generic_mood, date, user_id) VALUES ($1, $2, $3, $4, $5);", sleepHours, sleepQuality, morningMood, morningDate, userId);
     response.redirect('/');
@@ -117,7 +47,7 @@ const reportMorningData = async({response, request, render, session}) => {
   }
 };
 
-const reportEveningData = async({response, request, render, session}) => {
+const reportEveningData = async({response, request, render}) => {
   const data = {
     errors: [],
     sportHours:'', 
@@ -167,7 +97,7 @@ const reportEveningData = async({response, request, render, session}) => {
   data.eveningMood = eveningMood;
   
 
-  const userId = 2/* (await session.get('user')).id */;
+  const userId = await getUserID();
   if (data.errors.length === 0){
     await executeQuery("INSERT INTO evening_data (sport_time, study_time, eating_regularity, eating_quality, generic_mood, date, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7);", sportHours, studyHours, eatingRegularity, eatingQuality, eveningMood, eveningDate, userId);
     response.redirect('/');
@@ -191,7 +121,7 @@ const monthlySummary = async(desiredMonth) => {
     avgMonMood:0
   }
 
-  const userId = 2 // FROM SESSION, FIX!!!!
+  const userId = await getUserID();
   monthlySum.avgMonSleep = Number((await executeQuery("SELECT ROUND(AVG(sleep_duration)) FROM morning_data WHERE user_id = $1 AND sleep_duration IS NOT NULL AND date_part('month', date)= $2;", userId, month)).rowsOfObjects()[0].round);
 
   monthlySum.avgMonSleepQuality = Number((await executeQuery("SELECT ROUND(AVG(sleep_quality)) FROM morning_data WHERE user_id = $1 AND sleep_quality IS NOT NULL AND date_part('month', date)= $2;", userId, month)).rowsOfObjects()[0].round);
@@ -222,7 +152,7 @@ const weeklySummary = async(desiredWeek) => {
     avgWeeMood:'',
   }
 
-  const userId = 2 // FROM SESSION, FIX!!!!
+  const userId = await getUserID();
   weeklySum.avgWeeSleep = Number((await executeQuery("SELECT ROUND(AVG(sleep_duration)) FROM morning_data WHERE user_id = $1 AND sleep_duration IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
 
   weeklySum.avgWeeSleepQuality = Number((await executeQuery("SELECT ROUND(AVG(sleep_quality)) FROM morning_data WHERE user_id = $1 AND sleep_quality IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
@@ -237,7 +167,7 @@ const weeklySummary = async(desiredWeek) => {
 };
 
 const moodPerDay = async() => {
-  const userId = 2 // FROM SESSION, FIX!!!!
+  const userId = await getUserID();
 
 
   let todayMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE) AS summed_moods", userId)).rowsOfObjects()[0].round);
@@ -270,4 +200,4 @@ const dataRefresh = async({request, response}) => {
 }
 
 
-export { dataRefresh, wellBoingAuth, wellBoingRegister, showLoginForm, reportMorningData, reportEveningData, monthlySummary, weeklySummary, moodPerDay };
+export { dataRefresh, reportMorningData, reportEveningData, monthlySummary, weeklySummary, moodPerDay };

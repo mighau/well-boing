@@ -1,9 +1,12 @@
 const toMain = () => {
-    window.location.replace("/");
+    render.redirect("/");
 }
 const login = () => {
-    window.location.replace("/auth/login");
+    render.redirect("/auth/login");
 }
 const register = () => {
-    window.location.replace("/auth/register");
+    render.redirect("/auth/register");
 }
+$(document).ready(function() {
+    $(".dropdown-toggle").dropdown();
+});
