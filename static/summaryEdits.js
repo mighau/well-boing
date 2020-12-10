@@ -1,5 +1,3 @@
-var xhttp = new XMLHttpRequest();
-
 var today = new Date();
 var dd = String(today.getDate()).padStart(2, '0');
 var mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -40,3 +38,8 @@ const refreshData = async() => {
     document.querySelector('#weekMood').innerHTML = `${json.week.avgWeeMood} / 5`;
 
 }
+
+if (document.querySelector('#mood').innerHTML.includes('bright')) {
+    document.getElementById("mood").classList.remove('alert-dark');
+    document.getElementById("mood").classList.add('alert-success');
+};

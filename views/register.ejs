@@ -1,13 +1,7 @@
 <%- include('./partials/header.ejs') %>
 <div class="container">
   <h1>Register to WellBoing!</h1>
-  <% if (errors && errors.length > 0) { %>
-    <% errors.forEach((error) => { %>
-      <div class="alert alert-danger" role="alert">
-        <%= error %>
-      </div>
-    <% }); %>
-<% } %>
+<%- include('./partials/errors.ejs') %>
   <p>Your journey starts here...</p>
 <form method="POST" action="/auth/register">
   <div class="form-group">

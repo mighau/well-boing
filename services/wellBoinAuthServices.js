@@ -2,34 +2,6 @@ import { executeQuery } from "../database/database.js";
 import { bcrypt, validate, required, isEmail } from "../deps.js";
 
 
-const wellBoingAuth = async({request, response}) => {
-    const body = request.body();
-    const params = await body.value;
-  
-    const email = params.get('email');
-    const password = params.get('password');
-  
-    // check if the email exists in the database
-    const res = await executeQuery("SELECT * FROM users WHERE email = $1;", email);
-    if (res.rowCount === 0) {
-        response.status = 401;
-        return;
-    }
-  
-    // take the first row from the results
-    const userObj = res.rowsOfObjects()[0];
-  
-    const hash = userObj.password;
-  
-    const passwordCorrect = await bcrypt.compare(password, hash);
-    if (!passwordCorrect) {
-        respnse.status = 401;
-        return;
-    }
-  
-    response.redirect("/");
-  };
-
 const postLoginForm = async({request, response, render, session}) => {
     const data = {
         errors: [],
@@ -45,26 +17,30 @@ const postLoginForm = async({request, response, render, session}) => {
     const res = await executeQuery("SELECT * FROM users WHERE email = $1;", email);
     if (res.rowCount === 0) {
         data.errors.push('Email not found!');
-        await render('login.ejs', data)
-    }
+        render('login.ejs', data);
+    };
     data.email = email;
     const userObj = res.rowsOfObjects()[0];
     const hash = userObj.password;
 
     const passwordCorrect = await bcrypt.compare(password, hash);
+
+
     if (!passwordCorrect) {
         data.errors.push('Password not valid!');
-        await render('login.ejs', data)
+        render('login.ejs', data);
+        console.log(data.errors);
+    } else {
+        await session.set('authenticated', true);
+        await session.set('user', {
+            id: userObj.id,
+            email: userObj.email,
+        });
+
+        response.redirect('/');
     }
 
-    await session.set('authenticated', true);
-    await session.set('user', {
-        id: userObj.id,
-        email: userObj.email
-    });
-    console.log('login testi: ', await session.get('user'));
-
-    response.redirect('/');
+    
 }
   
 const wellBoingRegister = async({request, response, render, session}) => {
@@ -90,19 +66,20 @@ const wellBoingRegister = async({request, response, render, session}) => {
 
     if (!passes) {
         data.errors.push(errors.email.isEmail);
-        await render('register.ejs', data);
+        return render('register.ejs', data);
     };
 
-    if (password !== verification) {
-        data.errors.push("Passwords don't match!");
-        await render('register.ejs', data);
-    }
-
+    
     const existingUsers = await executeQuery("SELECT * FROM users WHERE email = $1", email);
     if (existingUsers.rowCount > 0) {
         data.errors.push('The email is already reserved.');
-        await render('register.ejs', data);    
-    } else {
+        return render('register.ejs', data);    
+    } 
+    else if (password !== verification) {
+        data.errors.push("Passwords don't match!");
+        return render('register.ejs', data);
+    } 
+    else {
         const hash = await bcrypt.hash(password);
         await executeQuery("INSERT INTO users (email, password) VALUES ($1, $2);", email, hash);
     };
@@ -128,9 +105,6 @@ const logOut = async({session, response}) => {
     }
 };
 
-const getUserID = async({session}) => {
-    return (await session.get('user')).id;
-  }
-  
 
-  export { getUserID, wellBoingRegister, postLoginForm, wellBoingAuth, logOut }
+
+  export { wellBoingRegister, postLoginForm, logOut }

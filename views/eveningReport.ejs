@@ -2,13 +2,7 @@
 <script src="/static/eveEdits.js" defer></script>
 <div class="container">
     <h1>Report evening activity</h1>
-    <% if (errors && errors.length > 0) { %>
-        <% errors.forEach((error) => { %>
-          <div class="alert alert-danger" role="alert">
-            <%= error %>
-          </div>
-        <% }); %>
-    <% } %>
+    <%- include('./partials/errors.ejs') %>
     <form method="POST" action="/report/evening">
         <div class="form-group">
             <fieldset>    

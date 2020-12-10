@@ -1,8 +1,6 @@
 import { executeQuery } from "../database/database.js";
-import {getUserID} from "./wellBoinAuthServices.js";
 
-
-const reportMorningData = async({response, request, render}) => {
+const reportMorningData = async({response, request, render, session}) => {
   const data = {
     errors:[],
     morningDate:'',
@@ -38,7 +36,7 @@ const reportMorningData = async({response, request, render}) => {
   data.sleepQuality = sleepQuality;
   data.morningMood = morningMood;
 
-  const userId = await getUserID();
+  const userId = (await session.get('user')).id;
   if (data.errors.length === 0) {
     await executeQuery("INSERT INTO morning_data (sleep_duration, sleep_quality, generic_mood, date, user_id) VALUES ($1, $2, $3, $4, $5);", sleepHours, sleepQuality, morningMood, morningDate, userId);
     response.redirect('/');
@@ -47,7 +45,7 @@ const reportMorningData = async({response, request, render}) => {
   }
 };
 
-const reportEveningData = async({response, request, render}) => {
+const reportEveningData = async({response, request, render, session}) => {
   const data = {
     errors: [],
     sportHours:'', 
@@ -97,7 +95,7 @@ const reportEveningData = async({response, request, render}) => {
   data.eveningMood = eveningMood;
   
 
-  const userId = await getUserID();
+  const userId = (await session.get('user')).id;
   if (data.errors.length === 0){
     await executeQuery("INSERT INTO evening_data (sport_time, study_time, eating_regularity, eating_quality, generic_mood, date, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7);", sportHours, studyHours, eatingRegularity, eatingQuality, eveningMood, eveningDate, userId);
     response.redirect('/');
@@ -106,7 +104,7 @@ const reportEveningData = async({response, request, render}) => {
   }
 };
 
-const monthlySummary = async(desiredMonth) => {
+const monthlySummary = async(userid, desiredMonth) => {
   let month = desiredMonth;
   if (!month) {
     const date = new Date();
@@ -120,8 +118,8 @@ const monthlySummary = async(desiredMonth) => {
     avgMonStudy:0,
     avgMonMood:0
   }
-
-  const userId = await getUserID();
+  const userId = userid;
+  /* const userId = (await session.get('user')).id; */
   monthlySum.avgMonSleep = Number((await executeQuery("SELECT ROUND(AVG(sleep_duration)) FROM morning_data WHERE user_id = $1 AND sleep_duration IS NOT NULL AND date_part('month', date)= $2;", userId, month)).rowsOfObjects()[0].round);
 
   monthlySum.avgMonSleepQuality = Number((await executeQuery("SELECT ROUND(AVG(sleep_quality)) FROM morning_data WHERE user_id = $1 AND sleep_quality IS NOT NULL AND date_part('month', date)= $2;", userId, month)).rowsOfObjects()[0].round);
@@ -135,7 +133,7 @@ const monthlySummary = async(desiredMonth) => {
   return monthlySum;
 };
 
-const weeklySummary = async(desiredWeek) => {
+const weeklySummary = async(userid, desiredWeek) => {
   let week = desiredWeek;
   if (!week) {
     const today = new Date();
@@ -151,8 +149,8 @@ const weeklySummary = async(desiredWeek) => {
     avgWeeStudy:'',
     avgWeeMood:'',
   }
-
-  const userId = await getUserID();
+  const userId = userid;
+  /* const userId = (await session.get('user')).id; */
   weeklySum.avgWeeSleep = Number((await executeQuery("SELECT ROUND(AVG(sleep_duration)) FROM morning_data WHERE user_id = $1 AND sleep_duration IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
 
   weeklySum.avgWeeSleepQuality = Number((await executeQuery("SELECT ROUND(AVG(sleep_quality)) FROM morning_data WHERE user_id = $1 AND sleep_quality IS NOT NULL AND date_part('week', date)= $2;", userId, week)).rowsOfObjects()[0].round);
@@ -166,38 +164,67 @@ const weeklySummary = async(desiredWeek) => {
   return weeklySum;
 };
 
-const moodPerDay = async() => {
-  const userId = await getUserID();
-
+const moodPerDay = async(userid) => {
+  const userId = userid;
 
   let todayMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE) AS summed_moods", userId)).rowsOfObjects()[0].round);
   let yesterdayMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE - 1 UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE - 1) AS summed_moods", userId)).rowsOfObjects()[0].round);
   let moodTrend = '(no changes)';
 
   if (todayMood < yesterdayMood) {
-    moodTrend = "Going down, today's a new day though!";
+    moodTrend = "Things are looking gloomy today.";
   } else if (todayMood > yesterdayMood) {
-    moodTrend = 'Going up, excellent!';
+    moodTrend = 'Things are looking bright today!';
   };
   
-  if (!todayMood) todayMood = '[no data]';
+  if (!todayMood) {
+    todayMood = '[no data]';
+    moodTrend = '';
+  }
   if (!yesterdayMood) yesterdayMood = '[no data]';
 
   return { todayMood: todayMood, yesterdayMood: yesterdayMood, moodTrend: moodTrend };
 };
 
-const dataRefresh = async({request, response}) => {
+const isReportingDone = async(userid) => {
+  const returnObj = {
+    morningEntry:'You have not yet reported your morning data.',
+    eveningEntry:'You have not yet reported your evening data.'
+  }
+  const userId = userid;
+
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const yyyy = today.getFullYear();
+  const queryDate = yyyy + '-' + mm + '-' + dd;
+  console.log(queryDate);
+
+  const resMorning = await executeQuery("SELECT * FROM morning_data WHERE date = $1 AND user_id = $2", queryDate, userId);
+
+  if (resMorning.rowCount > 0){
+    returnObj.morningEntry = 'Morning data reported, good work!';
+  }
+  const resEvening = await executeQuery("SELECT * FROM evening_data WHERE date = $1 AND user_id = $2", queryDate, userId);
+
+  if (resEvening.rowCount > 0){
+    returnObj.eveningEntry = 'Evening data reported, good work!';
+  }
+  return returnObj;
+}
+
+
+const dataRefresh = async({request, response, session}) => {
   const body = request.body({type: 'json'});
   const document = await body.value;
-
-  console.log(document);
+  const userId = (await session.get('user')).id;
 
   const month = Number(document.month);
   const week = Number(document.week);
 
   response.status = 200;
-  response.body = {month: await monthlySummary(month), week: await weeklySummary(week) };
+  response.body = {month: await monthlySummary(userId, month), week: await weeklySummary(userId, week) };
 }
 
 
-export { dataRefresh, reportMorningData, reportEveningData, monthlySummary, weeklySummary, moodPerDay };
+export { isReportingDone, dataRefresh, reportMorningData, reportEveningData, monthlySummary, weeklySummary, moodPerDay };

@@ -1,4 +1,5 @@
-import { Application, Session, oakCors } from "./deps.js";
+import { Application, oakCors } from "./deps.js";
+import { Session } from "./deps.js";
 import { router } from "./routes/routes.js";
 import * as middleware from './middlewares/middlewares.js';
 import { viewEngine, engineFactory, adapterFactory } from "./deps.js";
@@ -23,8 +24,8 @@ app.use(middleware.requestTimingMiddleware);
 app.use(middleware.serveStaticFilesMiddleware);
 
 
-app.use(oakCors());
 app.use(router.routes());
+app.use(oakCors());
 
 
 if (!Deno.env.get('TEST_ENVIRONMENT')) {

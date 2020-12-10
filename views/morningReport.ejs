@@ -2,13 +2,7 @@
 <script src="/static/mornEdits.js" defer></script>
 <div class="container">
     <h1>Report morning activity</h1>
-    <% if (errors && errors.length > 0) { %>
-        <% errors.forEach((error) => { %>
-          <div class="alert alert-danger" role="alert">
-            <%= error %>
-          </div>
-        <% }); %>
-    <% } %>
+    <%- include('./partials/errors.ejs') %>
     <form method="POST" action="/report/morning">
         <div class="form-group">
             <fieldset>    

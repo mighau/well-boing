@@ -25,17 +25,18 @@ const wellBoingMain = async({render, response, session}) => {
   render('index.ejs');
 }
 
-const morningReport = async({render}) => {
+const morningReport = async({render, session}) => {
   render('morningReport.ejs', {
     errors:[],
     morningDate:'',
     sleepHours:'',
     sleepQuality:'',
-    morningMood:''
+    morningMood:'',
+    email: (await session.get('user')).email
   });
 }
 
-const eveningReport = async({render}) => {
+const eveningReport = async({render, session}) => {
   render('eveningReport.ejs', {
     errors: [],
     sportHours:'', 
@@ -43,15 +44,20 @@ const eveningReport = async({render}) => {
     eatingRegularity:'', 
     eatingQuality:'', 
     eveningMood:'', 
-    eveningDate:''
+    eveningDate:'',
+    email: (await session.get('user')).email
   });
 }
 
-const summary = async({render}) => {
+const summary = async({render, session}) => {
+  const userId = (await session.get('user')).id;
+
   const data = {
-    monthly: await services.monthlySummary(),
-    weekly: await services.weeklySummary(),
-    moods: await services.moodPerDay()
+    monthly: await services.monthlySummary(userId, ''),
+    weekly: await services.weeklySummary(userId, ''),
+    moods: await services.moodPerDay(userId),
+    email: (await session.get('user')).email,
+    todayDone: await services.isReportingDone(userId)
   };
 
   render('summaryMain.ejs', data);

@@ -5,9 +5,18 @@
   <br>
     <h1>Your WellBoing</h1><br>
     <br>
+    <span id="divMood">
+      <h2 class="alert alert-dark mx-2" id="mood">Mood today: <%=moods.todayMood%> / 5<br><%=moods.moodTrend%></h2>
+    </span>
+    
+    <h4 class="alert alert-light">(mood yesterday: <%=moods.yesterdayMood%>)</h4>
     <br>
-    <h2>Mood today: <%=moods.todayMood%> <%=moods.moodTrend%></h2>
-    <p>(mood yesterday: <%=moods.yesterdayMood%>)</p>
+    <div class="alert alert-light" role="alert">
+      <%= todayDone.morningEntry %>
+    </div>
+    <div class="alert alert-light" role="alert">
+      <%= todayDone.eveningEntry %>    
+    </div>
     <br>
     <h2>Monthly averages:</h2>
     <br>
