@@ -1,6 +1,8 @@
 # well-boing
 Course project for course "Web Software Development" in Aalto University School of Science
 
+The app is available at [https://wellboing.herokuapp.com](https://wellboing.herokuapp.com)
+
 ## Required databases (total of 3):
 
 __users__, where each user row has an id, email, and password (in a crypted format):
