@@ -77,6 +77,7 @@ const wellBoingRegister = async({request, response, render, session}) => {
     } 
     else if (password !== verification) {
         data.errors.push("Passwords don't match!");
+        data.email = email;
         return render('register.ejs', data);
     } 
     else {

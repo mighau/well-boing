@@ -1,15 +1,14 @@
-let config = {};
+import "https://deno.land/x/dotenv/load.ts";
 
-if (Deno.env.get('TEST_ENVIRONMENT')) {
-    config.database = {};
-} else {
-    config.database = {
-        hostname: "hattie.db.elephantsql.com",
-        database: "mgphxmam",
-        user: "mgphxmam",
-        password: "SUuymvsozepafJZjQx_epu7a_SjMKCVs",
-        port: 5432
-    };
-}
+
+let config = {};
+config.database = {
+    hostname: Deno.env.get('PGHOST'),
+    database: Deno.env.get('PGDATABASE'),
+    user: Deno.env.get('PGDATABASE'),
+    password: Deno.env.get('PGPASSWORD'),
+    port: Deno.env.get('PGPORT')
+};
+
 
 export { config };

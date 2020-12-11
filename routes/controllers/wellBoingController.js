@@ -20,7 +20,7 @@ const wellBoingRegister = async({render}) => {
 
 const wellBoingMain = async({render, response, session}) => {
   if (session && await session.get('authenticated')) {
-    response.redirect('/behavior/summary');
+    response.redirect('/home');
 }
   render('index.ejs');
 }
@@ -63,8 +63,20 @@ const summary = async({render, session}) => {
   render('summaryMain.ejs', data);
 };
 
+const home = async({render, session}) => {
+  const userId = (await session.get('user')).id;
+  const data = {
+    moods: await services.moodPerDay(userId),
+    email: (await session.get('user')).email,
+    todayDone: await services.isReportingDone(userId)
+  };
+  render('userMain.ejs', data);
+};
 
+const toSummary = ({response}) => {
+  response.redirect('/behavior/summary');
+};
 
-export { wellBoingRegister, wellBoingLogin, wellBoingMain, morningReport, eveningReport, summary };
+export { toSummary, home, wellBoingRegister, wellBoingLogin, wellBoingMain, morningReport, eveningReport, summary };
 
 

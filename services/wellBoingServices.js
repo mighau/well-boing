@@ -8,6 +8,12 @@ const reportMorningData = async({response, request, render, session}) => {
     sleepQuality:'',
     morningMood:''
   };
+  const userId = (await session.get('user')).id;
+  if (!(await session.get('authenticated'))) {
+    response.status = 401;
+    return;
+   };
+
   const body = request.body();
   const params = await body.value;
   
@@ -36,7 +42,7 @@ const reportMorningData = async({response, request, render, session}) => {
   data.sleepQuality = sleepQuality;
   data.morningMood = morningMood;
 
-  const userId = (await session.get('user')).id;
+
   if (data.errors.length === 0) {
     await executeQuery("INSERT INTO morning_data (sleep_duration, sleep_quality, generic_mood, date, user_id) VALUES ($1, $2, $3, $4, $5);", sleepHours, sleepQuality, morningMood, morningDate, userId);
     response.redirect('/');
@@ -54,8 +60,14 @@ const reportEveningData = async({response, request, render, session}) => {
     eatingQuality:'', 
     eveningMood:'', 
     eveningDate:''
-
+    
   }
+  const userId = (await session.get('user')).id;
+  if (!userId) {
+    response.status = 401;
+    return;
+   };
+
   const body = request.body();
   const params = await body.value;
   
@@ -95,7 +107,6 @@ const reportEveningData = async({response, request, render, session}) => {
   data.eveningMood = eveningMood;
   
 
-  const userId = (await session.get('user')).id;
   if (data.errors.length === 0){
     await executeQuery("INSERT INTO evening_data (sport_time, study_time, eating_regularity, eating_quality, generic_mood, date, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7);", sportHours, studyHours, eatingRegularity, eatingQuality, eveningMood, eveningDate, userId);
     response.redirect('/');
@@ -169,7 +180,7 @@ const moodPerDay = async(userid) => {
 
   let todayMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE) AS summed_moods", userId)).rowsOfObjects()[0].round);
   let yesterdayMood = Number((await executeQuery("SELECT ROUND(AVG(generic_mood)) FROM (SELECT (generic_mood) FROM morning_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE - 1 UNION ALL SELECT (generic_mood) FROM evening_data WHERE user_id = $1 AND generic_mood IS NOT NULL AND date = CURRENT_DATE - 1) AS summed_moods", userId)).rowsOfObjects()[0].round);
-  let moodTrend = '(no changes)';
+  let moodTrend = 'same as yesterday';
 
   if (todayMood < yesterdayMood) {
     moodTrend = "Things are looking gloomy today.";
@@ -179,7 +190,7 @@ const moodPerDay = async(userid) => {
   
   if (!todayMood) {
     todayMood = '[no data]';
-    moodTrend = '';
+    moodTrend = 'time to start reporting!';
   }
   if (!yesterdayMood) yesterdayMood = '[no data]';
 
@@ -198,7 +209,6 @@ const isReportingDone = async(userid) => {
   const mm = String(today.getMonth() + 1).padStart(2, '0');
   const yyyy = today.getFullYear();
   const queryDate = yyyy + '-' + mm + '-' + dd;
-  console.log(queryDate);
 
   const resMorning = await executeQuery("SELECT * FROM morning_data WHERE date = $1 AND user_id = $2", queryDate, userId);
 

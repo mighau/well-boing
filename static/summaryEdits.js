@@ -39,7 +39,11 @@ const refreshData = async() => {
 
 }
 
-if (document.querySelector('#mood').innerHTML.includes('bright')) {
-    document.getElementById("mood").classList.remove('alert-dark');
-    document.getElementById("mood").classList.add('alert-success');
+if (document.querySelector('#morning').innerHTML.includes('good')) {
+    document.getElementById("morning").classList.remove('alert-secondary');
+    document.getElementById("morning").classList.add('alert-success');
+};
+if (document.querySelector('#evening').innerHTML.includes('good')) {
+    document.getElementById("evening").classList.remove('alert-secondary');
+    document.getElementById("evening").classList.add('alert-success');
 };

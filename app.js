@@ -26,10 +26,10 @@ app.use(middleware.serveStaticFilesMiddleware);
 
 app.use(router.routes());
 app.use(oakCors());
-
-
+app.listen({ port: 7777 });
+/* 
 if (!Deno.env.get('TEST_ENVIRONMENT')) {
     app.listen({ port: 7777 });
   }
-    
-  export default app;
+ */    
+export { app };

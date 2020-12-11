@@ -3,50 +3,20 @@
 
 <div class = "container">
   <br>
-    <h1>Your WellBoing</h1><br>
+    <h1>Summaries</h1><br>
     <br>
-    <span id="divMood">
-      <h2 class="alert alert-dark mx-2" id="mood">Mood today: <%=moods.todayMood%> / 5<br><%=moods.moodTrend%></h2>
-    </span>
-    
-    <h4 class="alert alert-light">(mood yesterday: <%=moods.yesterdayMood%>)</h4>
-    <br>
-    <div class="alert alert-light" role="alert">
+    <div class="alert alert-secondary" id="morning" role="alert">
       <%= todayDone.morningEntry %>
     </div>
-    <div class="alert alert-light" role="alert">
+    <div class="alert alert-secondary" id="evening" role="alert">
       <%= todayDone.eveningEntry %>    
     </div>
     <br>
-    <h2>Monthly averages:</h2>
-    <br>
-    Select month: <input type="month" id="month" name="month"> <input type="button" value="refresh" class="btn btn-info" onclick="refreshData()"><br>
-    <br>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Average sleep duration:</th>
-          <th scope="col">Average quality of sleep:</th>
-          <th scope="col">Average time spent on exercise/sports:</th>
-          <th scope="col">Average time spent on studying:</th>
-          <th scope="col">Average general mood:</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td id="monSleep"><%= monthly.avgMonSleep %> hours</td>
-          <td id="monSleepQ"><%= monthly.avgMonSleepQuality %> / 5</td>
-          <td id="monSport"><%= monthly.avgMonSport %> hours</td>
-          <td id="monStudy"><%= monthly.avgMonStudy %> hours</td>
-          <td id="monMood"><%= monthly.avgMonMood %> / 5</td>
-        </tr>
-      </tbody>
-    </table><br>
     <h2>Weekly averages:</h2>
     <br>
     Select month: <input type="week" id="week" name="month"> <input type="button" value="refresh" class="btn btn-info" onclick="refreshData()"><br>
     <br>
-    <table class="table">
+    <table class="table bg-light">
         <thead>
           <tr>
             <th scope="col">Average sleep duration:</th>
@@ -66,5 +36,30 @@
           </tr>
         </tbody>
       </table>
+      <br>
+    <h2>Monthly averages:</h2>
+    <br>
+    Select month: <input type="month" id="month" name="month"> <input type="button" value="refresh" class="btn btn-info" onclick="refreshData()"><br>
+    <br>
+    <table class="table bg-light">
+      <thead>
+        <tr>
+          <th scope="col">Average sleep duration:</th>
+          <th scope="col">Average quality of sleep:</th>
+          <th scope="col">Average time spent on exercise/sports:</th>
+          <th scope="col">Average time spent on studying:</th>
+          <th scope="col">Average general mood:</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="monSleep"><%= monthly.avgMonSleep %> hours</td>
+          <td id="monSleepQ"><%= monthly.avgMonSleepQuality %> / 5</td>
+          <td id="monSport"><%= monthly.avgMonSport %> hours</td>
+          <td id="monStudy"><%= monthly.avgMonStudy %> hours</td>
+          <td id="monMood"><%= monthly.avgMonMood %> / 5</td>
+        </tr>
+      </tbody>
+    </table><br>
 </div>
 <%- include('./partials/footer.ejs') %>

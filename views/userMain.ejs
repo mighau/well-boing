@@ -1,0 +1,21 @@
+<%- include('./partials/userHeader.ejs') %>
+<script src="/static/userMainEdits.js" defer></script>
+
+<div class = "container">
+  <br>
+    <h1>Home</h1><br>
+    <br>
+    <span id="divMood">
+      <h2 class="alert alert-info mx-2" id="mood">Mood today: <b><%=moods.todayMood%></b> / 5 - <%=moods.moodTrend%></h2>
+    </span>
+    
+    <h4 class="alert alert-light">(mood yesterday: <%=moods.yesterdayMood%>)</h4>
+    <br>
+    <div class="alert alert-secondary" id="morning" role="alert">
+      <%= todayDone.morningEntry %>
+    </div>
+    <div class="alert alert-secondary" id="evening" role="alert">
+      <%= todayDone.eveningEntry %>    
+    </div>
+    <br>
+<%- include('./partials/footer.ejs') %>

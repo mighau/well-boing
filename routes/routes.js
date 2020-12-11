@@ -15,6 +15,8 @@ router.post('/auth/login', authservices.postLoginForm);
 router.get('/auth/register', wbctrl.wellBoingRegister);
 router.post('/auth/register', authservices.wellBoingRegister);
 
+router.get('/home', wbctrl.home);
+
 router.get('/auth/logout', authservices.logOut);
 
 router.get('/report/morning', wbctrl.morningReport);
@@ -25,6 +27,8 @@ router.post('/report/evening', wbservices.reportEveningData);
 
 router.get('/behavior/summary', wbctrl.summary);
 router.post('/behavior/summary/refresh', wbservices.dataRefresh);
+
+router.get('/behavior/reporting', wbctrl.toSummary);
 
 router.get('/api/summary', apis.weekSummary);
 router.get('/api/summary/:year/:month/:day', apis.daySummary);
