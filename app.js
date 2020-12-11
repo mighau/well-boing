@@ -4,7 +4,13 @@ import { router } from "./routes/routes.js";
 import * as middleware from './middlewares/middlewares.js';
 import { viewEngine, engineFactory, adapterFactory } from "./deps.js";
 
+import { serve } from "https://deno.land/std@0.65.0/http/server.ts";
 
+let port = 7777;
+if (Deno.args.length > 0) {
+  const lastArgument = Deno.args[Deno.args.length - 1];
+  port = Number(lastArgument);
+}
 
 const app = new Application();
 
@@ -26,7 +32,7 @@ app.use(middleware.serveStaticFilesMiddleware);
 
 app.use(router.routes());
 app.use(oakCors());
-app.listen({ port: 7777 });
+app.listen({ port: port });
 /* 
 if (!Deno.env.get('TEST_ENVIRONMENT')) {
     app.listen({ port: 7777 });
